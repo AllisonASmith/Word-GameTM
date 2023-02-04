@@ -51,7 +51,7 @@ public class Movement2DSide : MonoBehaviour
         float y = 0;
         // check for closest item
         GameObject target = getNearestItem();
-        pickupPointer.setTarget(target == null ? currentlyHolding: target);
+        pickupPointer.setTarget(target == null ? currentTarget: target);
         if (canInput) {
             x = Input.GetAxisRaw("Horizontal");
             y = Input.GetAxisRaw("Vertical");
@@ -81,7 +81,7 @@ public class Movement2DSide : MonoBehaviour
         // use
         if (canInput && Input.GetMouseButtonDown(0) && currentTarget != null && currentTarget.tag == "Plant")
         {
-            if (currentlyHoldingData == 5)
+            if (currentlyHoldingData == 4)
             {
                 // planting
                 currentTarget.GetComponent<PlantStats>().Sow(currentlyHolding.GetComponent<ItemStats>().seedStats, currentlyHolding);
@@ -89,11 +89,16 @@ public class Movement2DSide : MonoBehaviour
                 currentlyHolding = null;
                 currentlyHoldingData = -1;
             }
-            else if (currentlyHolding == null && currentTarget.tag == "Plant" && !currentTarget.GetComponent<PlantStats>().Harvest().Equals("X"))
+            else if (currentlyHolding == null && currentTarget.tag == "Plant") //!currentTarget.GetComponent<PlantStats>().Harvest().Equals("X"))
             {
                 // harvesting
-                // item needs to be instantiated
-                currentlyHolding = (GameObject)Instantiate(Resources.Load(""));
+                string temp = currentTarget.GetComponent<PlantStats>().Harvest();
+                if (!temp.Equals("X"))
+                {
+                    Debug.Log("Trying to load: " + temp);
+                    currentlyHolding = (GameObject)Instantiate(Resources.Load(temp));
+                    currentlyHolding.transform.parent = transform;
+                }
             }
             else if (currentlyHoldingData != -1)
             {
@@ -117,8 +122,8 @@ public class Movement2DSide : MonoBehaviour
                 if (target.name.Equals("Fertilizer"))
                 {
                     // get fertilizer
+                    if (currentlyHolding != null) currentlyHolding.GetComponent<ItemStats>().Throw(x);
                     currentlyHoldingData = 1;
-                    // instantiate fertilizer
                     currentlyHolding = (GameObject)Instantiate(Resources.Load("FertilizerItem"));
                     currentlyHolding.transform.parent = transform;
                     // set currentlyHolding to object
@@ -142,7 +147,6 @@ public class Movement2DSide : MonoBehaviour
                     // get new item
                     currentlyHolding = target;
                     target.transform.parent = transform;
-                    //target.transform.position = new Vector2(transform.position.x, transform.position.y + 3);
                     target.GetComponent<Rigidbody2D>().gravityScale = 0;
                     currentlyHoldingData = target.GetComponent<ItemStats>().type;
                 }

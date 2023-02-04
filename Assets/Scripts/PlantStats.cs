@@ -37,7 +37,7 @@ public class PlantStats : MonoBehaviour
             {
                 hasPests = true;
             }
-            
+            if (currentTime < 0) state = "PlantDone";
         }
     }
     public void UseManager(float amount, int index, GameObject holding)
@@ -68,13 +68,14 @@ public class PlantStats : MonoBehaviour
         hungerRate = stats[1];
         pestAttraction = stats[2];
         state = "PlantSeed";
-        name = holding.name;
+        name = holding.GetComponent<ItemStats>().seedName;
     }
     public string Harvest() 
     {
         if (!state.Contains("Done")) return "X";
         state = "Plot";
+        string temp = name;
         name = "Soil";
-        return gameObject.name;
+        return temp;
     }
 }

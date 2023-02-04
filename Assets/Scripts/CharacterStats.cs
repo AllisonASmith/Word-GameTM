@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class CharacterStats : MonoBehaviour
 {
-    public bool[] inventory; // this might be a string or something later (or a dictionary to better manage data), right now it's a bool assuming 0 = watering can 1 = ... yea
     public int[] cooldowns; // what each time takes, load this by prefabs
-    public string currentAction; // what the player is doing, might need to translate to animator bools, or don't use this
+    // [water, feeding, pesticide, selling, tilling, planting, harvesting]
+    public int[] rates; // how effective each action is
+    //public string currentAction; // what the player is doing, might need to translate to animator bools, or don't use this
 
 }

@@ -6,9 +6,9 @@ public class Movement2DSide : MonoBehaviour
 {
     Rigidbody2D rb; //player rigidbody
     public float Scale; //scale of the game
-    [Range (0,1)]
+    [Range (0,10)]
     public float speed; //speed magnitude
-    [Range (0,5)]
+    [Range (0,50)]
     public float jumpHeight; //jump height magnitude
     [Range(0, 10)]
     public float Friction; //stops object on the floor, use 0 for no friction
@@ -19,14 +19,27 @@ public class Movement2DSide : MonoBehaviour
 
     bool canInput = true; // global check for if inputs can be done (for stun/knockback)
 
+    GameObject currentTarget; // which plant the player is looking at
+
+    GameObject currentlyHolding = null; // what item the player is holding (watering can = "")
+    int currentlyHoldingData; // the data of what item the player currently has (empty when = -1)
+
+    [SerializeField]
+    float pickupReach; // how far away can the item be picked up from
+    [SerializeField]
+    SelectTarget pickupPointer; // what the player is closest to
+    // number relative to index in CharacterStats: [water, feeding, pesticide, selling, tilling, planting, harvesting]
+
     Animator anim;
     SpriteRenderer sr;
+    CharacterStats stats;
     // Start is called before the first frame update
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
+        stats = GetComponent<CharacterStats>();
         speed *= Scale;
         jumpHeight *= Scale / 2;
     }
@@ -36,7 +49,10 @@ public class Movement2DSide : MonoBehaviour
     {
         float x = 0;
         float y = 0;
-        if(canInput) {
+        // check for closest item
+        GameObject target = getNearestItem();
+        pickupPointer.setTarget(target == null ? currentlyHolding: target);
+        if (canInput) {
             x = Input.GetAxisRaw("Horizontal");
             y = Input.GetAxisRaw("Vertical");
         }
@@ -61,12 +77,84 @@ public class Movement2DSide : MonoBehaviour
         //physics-y stuff
         if (Mathf.Abs(rb.velocity.y) > 0.5f || Mathf.Abs(rb.velocity.x) <= (x * speed) || !grounded) rb.drag = 0;
         else rb.drag = Friction;
-        //attack
-        if (Input.GetMouseButtonDown(0))
-        { //fix for controller later
-            anim.SetFloat("Attack", 1);
+        
+        // use
+        if (canInput && Input.GetMouseButtonDown(0) && currentTarget != null && currentTarget.tag == "Plant")
+        {
+            if (currentlyHoldingData == 5)
+            {
+                // planting
+                currentTarget.GetComponent<PlantStats>().Sow(currentlyHolding.GetComponent<ItemStats>().seedStats, currentlyHolding);
+                Destroy(currentlyHolding); // could do something else with this
+                currentlyHolding = null;
+                currentlyHoldingData = -1;
+            }
+            else if (currentlyHolding == null && currentTarget.tag == "Plant" && !currentTarget.GetComponent<PlantStats>().Harvest().Equals("X"))
+            {
+                // harvesting
+                // item needs to be instantiated
+                currentlyHolding = (GameObject)Instantiate(Resources.Load(""));
+            }
+            else if (currentlyHoldingData != -1)
+            {
+                // watering, fertilizing, or spraying pesticides
+                currentTarget.GetComponent<PlantStats>().UseManager(stats.rates[currentlyHoldingData], currentlyHoldingData, currentlyHolding);
+                StartCoroutine(InputDisable(stats.cooldowns[currentlyHoldingData]));
+                if(currentlyHoldingData != 0)
+                {
+                    Destroy(currentlyHolding);
+                    currentlyHolding = null;
+                    currentlyHoldingData = -1;
+                }
+            }
         }
-        else anim.SetFloat("Attack", 0);
+        // pickup
+        else if (canInput && Input.GetMouseButtonDown(1)) // might need to change the item targeting system to nearest item
+        {
+            if (target != null)
+            {
+                // pickup an item
+                if (target.name.Equals("Fertilizer"))
+                {
+                    // get fertilizer
+                    currentlyHoldingData = 1;
+                    // instantiate fertilizer
+                    currentlyHolding = (GameObject)Instantiate(Resources.Load("FertilizerItem"));
+                    currentlyHolding.transform.parent = transform;
+                    // set currentlyHolding to object
+                    StartCoroutine(InputDisable(stats.cooldowns[1]));
+                }
+                else if (target.name.Equals("Well") && currentlyHolding != null && currentlyHolding.name.Contains("Watering Can"))
+                {
+                    // fill watering can
+                    currentlyHoldingData = 0;
+                    currentlyHolding.GetComponent<ItemStats>().isEmpty = false;
+                    StartCoroutine(InputDisable(stats.cooldowns[0]));
+                }
+                else
+                {
+                    if (currentlyHolding != null)
+                    {
+                        // throw the item you're holding
+                        currentlyHolding.GetComponent<ItemStats>().Throw(x);
+                        currentlyHolding = null;
+                    }
+                    // get new item
+                    currentlyHolding = target;
+                    target.transform.parent = transform;
+                    //target.transform.position = new Vector2(transform.position.x, transform.position.y + 3);
+                    target.GetComponent<Rigidbody2D>().gravityScale = 0;
+                    currentlyHoldingData = target.GetComponent<ItemStats>().type;
+                }
+            }
+            else if(currentlyHolding != null)
+            {
+                // throw item
+                currentlyHoldingData = -1;
+                currentlyHolding.GetComponent<ItemStats>().Throw(x);
+                currentlyHolding = null;
+            }
+        }
 
     }
     private void OnCollisionEnter2D(Collision2D collision)
@@ -80,11 +168,6 @@ public class Movement2DSide : MonoBehaviour
             anim.SetBool("Jump", false);
             anim.SetBool("Grounded", true);
         }
-        //enemy contact damage
-        else if (collision.gameObject.tag == "Enemy") { 
-            // hurt player
-        }
-        //this depends on context, change to smaller value for enemy vs jumpboost
         //controls wall jumping 
         else if (currentWallJumps < wallJumps)
         {
@@ -101,12 +184,30 @@ public class Movement2DSide : MonoBehaviour
             anim.SetBool("Wall", false);
         }
     }
-    private void OnTriggerStay2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        // damages enemy in range (add attack power later)
-        if (Input.GetMouseButtonDown(0) && collision.gameObject.tag == "Enemy") {
-            //  collision.gameObject.GetComponent<BasicEnemy>().Damage(1);
+        currentTarget = collision.gameObject;
+    }
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (currentTarget == collision.gameObject) currentTarget = null;
+    }
+    GameObject getNearestItem() 
+    {
+        float distance = 300;
+        GameObject closest = null;
+        // find closest item if within reach
+        foreach (GameObject i in GameObject.FindGameObjectsWithTag("Item")) 
+        {
+            if (currentlyHolding == i) continue;
+            float temp = Mathf.Abs(transform.position.magnitude - i.transform.position.magnitude);
+            if (distance > temp && temp < pickupReach)
+            {
+                closest = i;
+                distance = temp;
+            }
         }
+        return closest;
     }
     IEnumerator InputDisable(float seconds, bool hit = false)
     {

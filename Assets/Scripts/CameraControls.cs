@@ -29,6 +29,6 @@ public class CameraControls : MonoBehaviour
             x = Random.Range(-.02f, .02f) * magnitude;
             y = Random.Range(-.02f, .02f) * magnitude;
         }
-        transform.position = isSmoothed ? Vector3.Lerp(transform.position, new Vector3(target.transform.position.x + x, y, -10), .025f) : new Vector3(target.transform.position.x + x, y, -10);
+        transform.position = isSmoothed ? Vector3.Lerp(transform.position, new Vector3(target.transform.position.x + x, target.transform.position.y, -10), .025f) : new Vector3(target.transform.position.x + x, target.transform.position.y, -10);
     }
 }

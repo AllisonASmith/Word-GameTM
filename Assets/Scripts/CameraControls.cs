@@ -11,9 +11,19 @@ public class CameraControls : MonoBehaviour
     public float shakeTime; // shake duration
     [Range(1, 10)]
     public int magnitude; // shake intensity
-    // Update is called once per frame
+
+    AudioSource a;
+    void Start()
+    {
+        a = GetComponent<AudioSource>();
+        a.volume = 0; //comment this if a fade in isn't necessary
+    }
     void Update()
     {   
+        if(a.volume < 1)
+        {
+            a.volume += .01f;
+        }
         // camera is shaking
         float x = 0;
         float y = 0;

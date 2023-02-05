@@ -33,6 +33,7 @@ public class Movement2DSide : MonoBehaviour
     Animator anim;
     SpriteRenderer sr;
     CharacterStats stats;
+    public SoundEffectPlayer sounds;
     // Start is called before the first frame update
     void Start()
     {
@@ -109,9 +110,11 @@ public class Movement2DSide : MonoBehaviour
                     Destroy(currentlyHolding);
                     currentlyHolding = null;
                     currentlyHoldingData = -1;
+                    sounds.play(1);
                 }
                 else
                 {
+                    sounds.play(2);
                     currentlyHolding.GetComponent<ItemStats>().isEmpty = true;
                 }
             }
@@ -131,6 +134,8 @@ public class Movement2DSide : MonoBehaviour
                     currentlyHolding.transform.parent = transform;
                     // set currentlyHolding to object
                     StartCoroutine(InputDisable(stats.cooldowns[1]));
+                    sounds.play(0);
+
                 }
                 else if (target.name.Equals("Pesticide"))
                 {
@@ -141,6 +146,7 @@ public class Movement2DSide : MonoBehaviour
                     currentlyHolding.transform.parent = transform;
                     // set currentlyHolding to object
                     StartCoroutine(InputDisable(stats.cooldowns[2]));
+                    sounds.play(0);
                 }
                 else if (target.name.Equals("Well"))
                 {
@@ -150,6 +156,7 @@ public class Movement2DSide : MonoBehaviour
                         currentlyHoldingData = 0;
                         currentlyHolding.GetComponent<ItemStats>().isEmpty = false;
                         StartCoroutine(InputDisable(stats.cooldowns[0]));
+                        sounds.play(2);
                     }
                 }
                 else
@@ -165,6 +172,7 @@ public class Movement2DSide : MonoBehaviour
                     target.transform.parent = transform;
                     target.GetComponent<Rigidbody2D>().gravityScale = 0;
                     currentlyHoldingData = target.GetComponent<ItemStats>().type;
+                    sounds.play(0);
                 }
             }
             else if(currentlyHolding != null)
@@ -173,6 +181,7 @@ public class Movement2DSide : MonoBehaviour
                 currentlyHoldingData = -1;
                 currentlyHolding.GetComponent<ItemStats>().Throw(x);
                 currentlyHolding = null;
+                sounds.play(1);
             }
         }
 

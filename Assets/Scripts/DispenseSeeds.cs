@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class DispenseSeeds : MonoBehaviour
 {
-    GameObject go;
+    GameObject go = null;
 
     [SerializeField]
     string seedName;
@@ -20,6 +20,7 @@ public class DispenseSeeds : MonoBehaviour
         if (go == null)
         {
             go = (GameObject)Instantiate(Resources.Load("Prefabs/" + seedName));
+            go.transform.position = new Vector2(transform.position.x, transform.position.y + 1);
         }
     }
 }

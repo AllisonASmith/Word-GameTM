@@ -66,6 +66,12 @@ public class Movement2DSide : MonoBehaviour
             anim.SetBool("Jump", true);
             anim.SetBool("Grounded", false);
         }
+
+        if (!grounded && Mathf.Abs(x) == 0)
+        {
+            rb.velocity = new Vector2(0, rb.velocity.y);
+        }
+
         //horizontal movement
         if (Mathf.Abs(x) > 0) { 
             rb.velocity = new Vector2(x * speed, rb.velocity.y);

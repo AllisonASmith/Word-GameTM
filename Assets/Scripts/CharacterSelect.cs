@@ -30,6 +30,11 @@ public class CharacterSelect : MonoBehaviour
         {
             case "Slot 1":
                 HandleCharacterDisplay();
+                if (Input.GetKeyDown(KeyCode.Space))
+                {
+                    sounds.play(1);
+                    canSelect = false;
+                }
                 break;
             case "Slot 2":
                 if (numControllers >= 1)

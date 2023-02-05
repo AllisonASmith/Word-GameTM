@@ -2,12 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class CharacterSelect : MonoBehaviour
 {
     bool onDown = false; // just onDown for axis inputs
     bool joined = false; // for checking if a controller player has joined the game
-    bool canSelect = true;
+    public bool canSelect = true;
     int iterator; // current character for this slice
     public GameObject[] prefabs; // stores the UI players
     public GameObject currentPlayer; // to store for next scene and manage where the prefabs go
@@ -43,12 +44,18 @@ public class CharacterSelect : MonoBehaviour
                 if (numControllers >= 1)
                 {
                     // Display the "Press A to join" message and prepare for displaying the characters in that slot if that player joins
-                    if (!joined) message.transform.position = new Vector2(transform.position.x, gameObject.transform.position.y);
+                    if (!joined)
+                    {
+                        message.transform.position = new Vector2(transform.position.x, gameObject.transform.position.y);
+                        canSelect = false;
+                    }
+
                     if (Input.GetButtonDown("GP_Fire1"))
                     {
                         if (!joined)
                         {
                             joined = true;
+                            canSelect = true;
                             message.transform.position = new Vector2(transform.position.x, transform.position.y + 800);
                             sounds.play(1);
                         }
@@ -71,6 +78,7 @@ public class CharacterSelect : MonoBehaviour
                 }
                 else
                 {
+                    canSelect = false;
                     // Do not display anything in that slot
                 }
                 break;

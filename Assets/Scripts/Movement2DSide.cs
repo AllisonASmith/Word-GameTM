@@ -89,13 +89,12 @@ public class Movement2DSide : MonoBehaviour
                 currentlyHolding = null;
                 currentlyHoldingData = -1;
             }
-            else if (currentlyHolding == null && currentTarget.tag == "Plant") //!currentTarget.GetComponent<PlantStats>().Harvest().Equals("X"))
+            else if (currentlyHolding == null && currentTarget.tag == "Plant")
             {
                 // harvesting
                 string temp = currentTarget.GetComponent<PlantStats>().Harvest();
                 if (!temp.Equals("X"))
                 {
-                    Debug.Log("Trying to load: " + temp);
                     currentlyHolding = (GameObject)Instantiate(Resources.Load(temp));
                     currentlyHolding.transform.parent = transform;
                 }
@@ -110,6 +109,10 @@ public class Movement2DSide : MonoBehaviour
                     Destroy(currentlyHolding);
                     currentlyHolding = null;
                     currentlyHoldingData = -1;
+                }
+                else
+                {
+                    currentlyHolding.GetComponent<ItemStats>().isEmpty = true;
                 }
             }
         }
@@ -129,12 +132,25 @@ public class Movement2DSide : MonoBehaviour
                     // set currentlyHolding to object
                     StartCoroutine(InputDisable(stats.cooldowns[1]));
                 }
-                else if (target.name.Equals("Well") && currentlyHolding != null && currentlyHolding.name.Contains("Watering Can"))
+                else if (target.name.Equals("Pesticide"))
                 {
-                    // fill watering can
-                    currentlyHoldingData = 0;
-                    currentlyHolding.GetComponent<ItemStats>().isEmpty = false;
-                    StartCoroutine(InputDisable(stats.cooldowns[0]));
+                    // get pesticide
+                    if (currentlyHolding != null) currentlyHolding.GetComponent<ItemStats>().Throw(x);
+                    currentlyHoldingData = 2;
+                    currentlyHolding = (GameObject)Instantiate(Resources.Load("PesticideItem"));
+                    currentlyHolding.transform.parent = transform;
+                    // set currentlyHolding to object
+                    StartCoroutine(InputDisable(stats.cooldowns[2]));
+                }
+                else if (target.name.Equals("Well"))
+                {
+                    if (currentlyHolding != null && currentlyHolding.name.Contains("Watering Can"))
+                    {
+                        // fill watering can
+                        currentlyHoldingData = 0;
+                        currentlyHolding.GetComponent<ItemStats>().isEmpty = false;
+                        StartCoroutine(InputDisable(stats.cooldowns[0]));
+                    }
                 }
                 else
                 {

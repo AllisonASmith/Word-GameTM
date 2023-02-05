@@ -12,6 +12,8 @@ public class PlantStats : MonoBehaviour
     public float currentTime, currentThirst, currentHunger, pestTime; // runtime values, used in UI
     bool hasPests; // does this plant have pests
     string state; // determines the current state of the plant (Soil, Wilted, Plant___[Seed, Sapling, etc])
+
+    SpriteRenderer sr;
     void Start()
     {
         currentThirst = maxThirst;
@@ -19,6 +21,7 @@ public class PlantStats : MonoBehaviour
         currentTime = maxTime;
         pestTime = 0;
         state = "Soil";
+        sr = GetComponent<SpriteRenderer>();
     }
     void Update()
     {
@@ -26,6 +29,7 @@ public class PlantStats : MonoBehaviour
         {
             // dying
             state = "Wilted";
+            sr.sprite = Resources.Load<Sprite>("Dead Plant");
         }
         else if(state.Contains("Plant"))
         {
@@ -37,7 +41,11 @@ public class PlantStats : MonoBehaviour
             {
                 hasPests = true;
             }
-            if (currentTime < 0) state = "PlantDone";
+            if (currentTime < 0)
+            {
+                state = "PlantDone";
+                sr.sprite = Resources.Load<Sprite>(name);
+            }
         }
     }
     public void UseManager(float amount, int index, GameObject holding)
@@ -69,6 +77,7 @@ public class PlantStats : MonoBehaviour
         pestAttraction = stats[2];
         state = "PlantSeed";
         name = holding.GetComponent<ItemStats>().seedName;
+        sr.sprite = Resources.Load<Sprite>("Sprout");
     }
     public string Harvest() 
     {
@@ -76,6 +85,7 @@ public class PlantStats : MonoBehaviour
         state = "Plot";
         string temp = name;
         name = "Soil";
+        sr.sprite = Resources.Load<Sprite>("Soil");
         return temp;
     }
 }

@@ -10,7 +10,7 @@ public class CharacterStats : MonoBehaviour
     public int[] rates; // how effective each action is
     [SerializeField]
     public CharacterSelect[] charRef; // temporary
-    public static string[] charList; // tells which player is who, -1 if the player isn't active
+    public static string[] charList = { "", ""}; // tells which player is who, -1 if the player isn't active
     private void Awake()
     {
         if (SceneManager.GetActiveScene().name.Equals("Start"))
@@ -23,10 +23,6 @@ public class CharacterStats : MonoBehaviour
         // temp
         if (Input.GetKeyDown(KeyCode.E) && SceneManager.GetActiveScene().name.Equals("Start"))
         {
-            Debug.Log("Hn");
-            Debug.Log("char: " + charRef[0].currentPlayer.name);
-            charList[0] = "a";//charRef[0].currentPlayer.name;
-            Debug.Log("HONK");
             for (int i = 0; i < 2; i++)
             {
                 if (i >= charRef.Length) charList[i] = "";

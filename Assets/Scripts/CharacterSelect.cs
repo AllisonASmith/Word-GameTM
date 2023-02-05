@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class CharacterSelect : MonoBehaviour
 {
     bool onDown = false; // just onDown for axis inputs
-    bool joined; // for checking if a controller player has joined the game
+    bool joined = false; // for checking if a controller player has joined the game
+    bool canSelect = true;
     int iterator; // current character for this slice
     public GameObject[] prefabs; // stores the UI players
     public GameObject currentPlayer; // to store for next scene and manage where the prefabs go
@@ -33,13 +35,27 @@ public class CharacterSelect : MonoBehaviour
                 if (numControllers >= 1)
                 {
                     // Display the "Press A to join" message and prepare for displaying the characters in that slot if that player joins
-                    message.transform.position = new Vector2(transform.position.x, gameObject.transform.position.y);
-                    if (Input.GetButtonDown("Fire1") && !joined)
+                    if (!joined) message.transform.position = new Vector2(transform.position.x, gameObject.transform.position.y);
+                    if (Input.GetButtonDown("GP_Fire1"))
                     {
-                        joined = true;
-                        message.transform.position = new Vector2(transform.position.x, gameObject.transform.position.y - 2000);
-                        HandleCharacterDisplay();
-                        sounds.play(1);
+                        if (!joined)
+                        {
+                            joined = true;
+                            message.transform.position = new Vector2(transform.position.x, transform.position.y + 800);
+                            sounds.play(1);
+                        }
+                        else
+                        {
+                            sounds.play(1);
+                            canSelect = false;
+                        }
+                    }
+                    else
+                    {
+                        if (joined)
+                        {
+                            HandleCharacterDisplay();
+                        }
                     }
                 }
                 else
@@ -47,44 +63,26 @@ public class CharacterSelect : MonoBehaviour
                     // Do not display anything in that slot
                 }
                 break;
-            case "Slot 3":
-                if (numControllers >= 2)
-                {
-                    // Display the "Press A to join" message and prepare for displaying the characters in that slot if that player joins
-                    message.transform.position = new Vector2(transform.position.x, gameObject.transform.position.y);
-                }
-                else
-                {
-                    // Do not display anything in that slot
-                    
-                }
-                break;
-            case "Slot 4":
-                if (numControllers >= 3)
-                {
-                    // Display the "Press A to join" message and prepare for displaying the characters in that slot if that player joins
-                    message.transform.position = new Vector2(transform.position.x, gameObject.transform.position.y);
-                }
-                else
-                {
-                    // Do not display anything in that slot
-                    
-                }
-                break;
         }
     }
 
     void HandleCharacterDisplay()
     {
+        float x = 0;
         if (currentPlayer != null) currentPlayer.transform.position = new Vector2(transform.position.x, transform.position.y - 1000);
-        float x = Input.GetAxisRaw("Horizontal");
-        if (!onDown && x > 0)
+
+
+
+        if (gameObject.name == "Slot 1") x = Input.GetAxisRaw("Horizontal");
+        else if (gameObject.name == "Slot 2") x = Gamepad.current.leftStick.ReadValue().x;
+
+        if (!onDown && x > 0 && canSelect)
         {
             onDown = true;
             iterator++;
             sounds.play(0);
         }
-        else if (!onDown && x < 0)
+        else if (!onDown && x < 0 && canSelect)
         {
             onDown = true;
             iterator--;

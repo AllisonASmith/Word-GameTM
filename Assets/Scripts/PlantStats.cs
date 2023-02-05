@@ -81,12 +81,22 @@ public class PlantStats : MonoBehaviour
         hungerRate = stats[1];
         pestAttraction = stats[2];
         currentTime = maxTime * stats[3];
+        currentThirst = maxThirst;
+        currentHunger = maxHunger;
+        currentTime = maxTime;
         state = "PlantSeed";
         name = holding.GetComponent<ItemStats>().seedName;
         sr.sprite = Resources.Load<Sprite>("Sprout");
     }
     public string Harvest() 
     {
+        if (state.Equals("Wilted"))
+        {
+            state = "Plot";
+            name = "Soil";
+            sr.sprite = Resources.Load<Sprite>("Soil");
+            return "X";
+        }
         if (!state.Contains("Done")) return "X";
         state = "Plot";
         string temp = name;

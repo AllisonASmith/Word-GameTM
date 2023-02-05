@@ -96,8 +96,9 @@ public class Movement2DSide : MonoBehaviour
                 string temp = currentTarget.GetComponent<PlantStats>().Harvest();
                 if (!temp.Equals("X"))
                 {
-                    currentlyHolding = (GameObject)Instantiate(Resources.Load(temp));
+                    currentlyHolding = (GameObject)Instantiate(Resources.Load("Prefabs/" + temp));
                     currentlyHolding.transform.parent = transform;
+                    currentlyHoldingData = 3;
                 }
             }
             else if (currentlyHoldingData != -1)
@@ -130,7 +131,7 @@ public class Movement2DSide : MonoBehaviour
                     // get fertilizer
                     if (currentlyHolding != null) currentlyHolding.GetComponent<ItemStats>().Throw(x);
                     currentlyHoldingData = 1;
-                    currentlyHolding = (GameObject)Instantiate(Resources.Load("FertilizerItem"));
+                    currentlyHolding = (GameObject)Instantiate(Resources.Load("Prefabs/FertilizerItem"));
                     currentlyHolding.transform.parent = transform;
                     // set currentlyHolding to object
                     StartCoroutine(InputDisable(stats.cooldowns[1]));
@@ -142,7 +143,7 @@ public class Movement2DSide : MonoBehaviour
                     // get pesticide
                     if (currentlyHolding != null) currentlyHolding.GetComponent<ItemStats>().Throw(x);
                     currentlyHoldingData = 2;
-                    currentlyHolding = (GameObject)Instantiate(Resources.Load("PesticideItem"));
+                    currentlyHolding = (GameObject)Instantiate(Resources.Load("Prefabs/PesticideItem"));
                     currentlyHolding.transform.parent = transform;
                     // set currentlyHolding to object
                     StartCoroutine(InputDisable(stats.cooldowns[2]));
@@ -166,6 +167,14 @@ public class Movement2DSide : MonoBehaviour
                         // throw the item you're holding
                         currentlyHolding.GetComponent<ItemStats>().Throw(x);
                         currentlyHolding = null;
+                        if (currentlyHoldingData == 5)
+                        {
+                            ContractManager.catMultiplier = false;
+                            foreach(string i in CharacterStats.charList)
+                            {
+                                if(i.Contains("Cat")) ContractManager.catMultiplier = true;
+                            }
+                        }
                     }
                     // get new item
                     currentlyHolding = target;

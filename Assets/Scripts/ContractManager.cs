@@ -13,10 +13,12 @@ public class ContractManager : MonoBehaviour
     string[] keywordRef;
     public static string[] keywords; // what types of crops there are
     int numContracts = 1; // how many contracts can be given to the player
-    int numItems = 1; // how many items can be made per contract
-    float contractTime = 10;
+    int numItems = 4; // how many items can be made per contract
+    float contractTime = 10; // base value per item
+    float difficulty; // scale based on score
 
     public static int money; // score
+    public static bool catMultiplier; // tldr when the cat throws a harvestable this goes off because... yea cutting corners. Cat ability
     public Text tex; // score UI
     private void Start()
     {
@@ -24,19 +26,19 @@ public class ContractManager : MonoBehaviour
     }
     void Update()
     {
-        Debug.Log(activeContracts.Count);
         if (activeContracts.Count < numContracts) addContract();
         for (int i = 0; i < activeContracts.Count; i++)
         {
             activeContracts[i].countDown();
         }
         tex.text = "" + money;
+        difficulty = Mathf.Sqrt(money);
     }
     public void addContract()
     {
+        numItems += 1 + (int)difficulty;
         int numEntries = numItems > 2 ? Random.Range(1, 4) : Random.Range(1, numItems + 1);
-        activeContracts.Add(new Contract(numItems, numEntries, contractTime, canvas, position, offset, activeContracts.Count + 1));
-        //activeContractsUI
+        activeContracts.Add(new Contract(numItems, numEntries, contractTime, canvas, position, offset, activeContracts.Count));
     }
     public void addItem(string name)
     {
@@ -77,11 +79,12 @@ public class Contract : MonoBehaviour
         // makes numEntries with numItems total
         for (int i = 0; i < numEntries && numItems > 0; i++)
         {
-            Debug.Log(ContractManager.keywords.Length);
             itemName.Add(ContractManager.keywords[Random.Range(0, ContractManager.keywords.Length)]);
             int temp = Random.Range(1, numItems);
             numItems -= temp;
+            itemReq.Add(temp);
         }
+        updateUI();
     }
     public bool CheckItem(string name)
     {
@@ -91,6 +94,7 @@ public class Contract : MonoBehaviour
             if (name.Equals(itemName[i]))
             {
                 itemReq[i]--;
+                updateUI();
                 if (itemReq[i] <= 0) 
                 {
                     itemName.RemoveAt(i);
@@ -107,7 +111,16 @@ public class Contract : MonoBehaviour
         int a = 0;
         foreach (Text i in UI.GetComponentsInChildren<Text>())
         {
-            i.text = "" + itemReq[a];
+            if (itemReq.Count > a)
+            {
+                i.GetComponentInParent<Image>().sprite = Resources.Load<Sprite>(itemName[a]);
+                i.text = "" + itemReq[a];
+            }
+            else
+            {
+                i.GetComponentInParent<Image>().enabled = false;
+                i.enabled = false;
+            }
             a++;
         }
     }

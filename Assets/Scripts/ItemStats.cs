@@ -7,7 +7,7 @@ public class ItemStats : MonoBehaviour
     public float[] seedStats; // 0 = thirst, 1 = hunger, 2 = pest rate
     public string seedName; // seed name
     public bool isEmpty; // might change to number later, if the watering can has water
-    public int type; // [water, feeding, pesticide, selling, tilling, planting, harvesting]
+    public int type; // [water, feeding, pesticide, selling, planting, harvesting]
     public bool isStatic; // can the item be moved
     
     public SoundEffectPlayer sounds; // plays thud
@@ -20,6 +20,8 @@ public class ItemStats : MonoBehaviour
     private void Start()
     {
         if(!isStatic) rb = GetComponent<Rigidbody2D>();
+        // yea the illegal one (this is only prefabs though)
+        if (sounds == null) sounds = GameObject.Find("Audio Source").GetComponent<SoundEffectPlayer>();
     }
     private void Update()
     {

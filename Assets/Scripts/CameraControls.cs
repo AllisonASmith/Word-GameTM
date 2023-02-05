@@ -14,7 +14,6 @@ public class CameraControls : MonoBehaviour
     // Update is called once per frame
     void Update()
     {   
-        if (Input.GetKey(KeyCode.F)) shake = true;
         // camera is shaking
         float x = 0;
         float y = 0;

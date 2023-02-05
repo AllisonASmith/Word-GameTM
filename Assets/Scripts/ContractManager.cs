@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ContractManager : MonoBehaviour
 {
@@ -9,6 +10,8 @@ public class ContractManager : MonoBehaviour
     int numContracts = 1; // how many contracts can be given to the player
     int numItems = 1; // how many items can be made per contract
     float contractTime;
+    public static int money; // score
+    public Text tex; // score UI
 
     // Update is called once per frame
     void Update()
@@ -18,6 +21,7 @@ public class ContractManager : MonoBehaviour
         {
             i.countDown();
         }
+        tex.text = "" + money;
     }
     public void addContract()
     {
@@ -29,7 +33,16 @@ public class ContractManager : MonoBehaviour
         // when an item is thrown into the container, remove the first item of this instance
         foreach(Contract i in activeContracts)
         {
-            if (i.CheckItem(name)) return;
+            if (i.CheckItem(name))
+            {
+                int temp = i.isEmpty();
+                if (temp > -1)
+                {
+                    activeContracts.Remove(i);
+                    money += temp;
+                }
+                return;
+            }
         }
     }
 }
@@ -38,11 +51,13 @@ public class Contract
     List<string> itemName; // type of item needed
     List<int> itemReq; // how many items of this type are needed
     float timer; // how long this contract has
+    int difficulty; // combination of itemname and itemreq
     public Contract(int numItems, int numEntries, float time)
     {
         timer = time;
+        difficulty = numEntries * numItems;
         // makes numEntries with numItems total
-        for(int i = 0; i < numEntries && numItems > 0; i++)
+        for (int i = 0; i < numEntries && numItems > 0; i++)
         {
             itemName.Add(ContractManager.keywords[Random.Range(0, ContractManager.keywords.Length)]);
             int temp = Random.Range(1, numItems);
@@ -70,5 +85,10 @@ public class Contract
     public void countDown()
     {
         timer -= Time.deltaTime;
+    }
+    public int isEmpty() 
+    {
+        if (itemName.Count == 0) return difficulty;
+        else return -1;
     }
 }

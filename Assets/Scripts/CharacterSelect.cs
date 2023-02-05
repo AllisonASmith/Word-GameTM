@@ -32,7 +32,10 @@ public class CharacterSelect : MonoBehaviour
                 HandleCharacterDisplay();
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
-                    sounds.play(1);
+                    if (canSelect)
+                    {
+                        sounds.play(1);
+                    }
                     canSelect = false;
                 }
                 break;
@@ -51,7 +54,10 @@ public class CharacterSelect : MonoBehaviour
                         }
                         else
                         {
-                            sounds.play(1);
+                            if (canSelect)
+                            {
+                                sounds.play(1);
+                            }
                             canSelect = false;
                         }
                     }

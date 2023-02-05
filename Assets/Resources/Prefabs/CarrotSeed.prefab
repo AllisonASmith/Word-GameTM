@@ -100,9 +100,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   seedStats:
-  - 0
-  - 0
-  - 0
+  - 1
+  - 1
+  - 1
+  - 0.5
   seedName: Carrot
   isEmpty: 0
   type: 4

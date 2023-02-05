@@ -126,9 +126,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   seedStats:
-  - 0
-  - 0
-  - 0
+  - 0.5
+  - 0.5
+  - 0.5
+  - 2
   seedName: Tree
   isEmpty: 0
   type: 4

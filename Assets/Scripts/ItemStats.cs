@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ItemStats : MonoBehaviour
 {
-    public float[] seedStats; // 0 = thirst, 1 = hunger, 2 = pest rate
+    public float[] seedStats; // 0 = thirst, 1 = hunger, 2 = pest rate, 3 = time
     public string seedName; // seed name
     public bool isEmpty; // might change to number later, if the watering can has water
     public int type; // [water, feeding, pesticide, selling, planting, harvesting]

@@ -127,7 +127,7 @@ public class Movement2DSide : MonoBehaviour
             }
         }
         // pickup
-        else if (canInput && Input.GetMouseButtonDown(1)) // might need to change the item targeting system to nearest item
+        else if (canInput && Input.GetMouseButtonDown(1)) // targeting system for items is nearest item
         {
             if (target != null)
             {
@@ -185,6 +185,7 @@ public class Movement2DSide : MonoBehaviour
                     // get new item
                     currentlyHolding = target;
                     target.transform.parent = transform;
+                    target.transform.localPosition = Vector2.zero;
                     target.GetComponent<Rigidbody2D>().gravityScale = 0;
                     currentlyHoldingData = target.GetComponent<ItemStats>().type;
                     sounds.play(0);

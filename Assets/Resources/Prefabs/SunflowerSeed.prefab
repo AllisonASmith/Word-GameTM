@@ -126,9 +126,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   seedStats:
-  - 0
-  - 0
-  - 0
+  - 2
+  - 1
+  - 0.5
+  - 1
   seedName: Sunflower
   isEmpty: 0
   type: 4

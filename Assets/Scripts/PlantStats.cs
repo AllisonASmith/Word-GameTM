@@ -12,10 +12,12 @@ public class PlantStats : MonoBehaviour
     public float currentTime, currentThirst, currentHunger, pestTime; // runtime values, used in UI
     bool hasPests; // does this plant have pests
     string state; // determines the current state of the plant (Soil, Wilted, Plant___[Seed, Sapling, etc])
+    ParticleSystem p;
 
     SpriteRenderer sr;
     void Start()
     {
+        p = GetComponent<ParticleSystem>();
         currentThirst = maxThirst;
         currentHunger = maxHunger;
         currentTime = maxTime;
@@ -29,22 +31,25 @@ public class PlantStats : MonoBehaviour
         {
             // dying
             state = "Wilted";
-            sr.sprite = Resources.Load<Sprite>("Dead Plant");
+            sr.sprite = Resources.Load<Sprite>("Wilted");
+            p.Pause();
         }
         else if(state.Contains("Plant"))
         {
             currentThirst -= thirstRate * Time.deltaTime;
             currentHunger -= hungerRate * Time.deltaTime;
             currentTime -= Time.deltaTime;
+            if (currentHunger < 25 || currentThirst < 25 || pestAttraction > 10) p.Play();
+            else p.Pause();
             if (hasPests) pestTime += pestAttraction * Time.deltaTime;
-            else if(Random.Range(0, 10) == 1)
+            else if (Random.Range(0, 10) == 1)
             {
                 hasPests = true;
             }
             if (currentTime < 0)
             {
                 state = "PlantDone";
-                sr.sprite = Resources.Load<Sprite>(name);
+                sr.sprite = Resources.Load<Sprite>("Plant" + name);
             }
         }
     }
@@ -75,12 +80,23 @@ public class PlantStats : MonoBehaviour
         thirstRate = stats[0];
         hungerRate = stats[1];
         pestAttraction = stats[2];
+        currentTime = maxTime * stats[3];
+        currentThirst = maxThirst;
+        currentHunger = maxHunger;
+        currentTime = maxTime;
         state = "PlantSeed";
         name = holding.GetComponent<ItemStats>().seedName;
         sr.sprite = Resources.Load<Sprite>("Sprout");
     }
     public string Harvest() 
     {
+        if (state.Equals("Wilted"))
+        {
+            state = "Plot";
+            name = "Soil";
+            sr.sprite = Resources.Load<Sprite>("Soil");
+            return "X";
+        }
         if (!state.Contains("Done")) return "X";
         state = "Plot";
         string temp = name;

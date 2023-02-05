@@ -6,27 +6,37 @@ using UnityEngine.UI;
 public class ContractManager : MonoBehaviour
 {
     List<Contract> activeContracts = new List<Contract>(); // current contracts offered to the player
+    public GameObject canvas;
+    public Vector2 position; // base position for element 0
+    public int offset; // offset based on how many elements right the contract is
+    [SerializeField]
+    string[] keywordRef;
     public static string[] keywords; // what types of crops there are
     int numContracts = 1; // how many contracts can be given to the player
     int numItems = 1; // how many items can be made per contract
-    float contractTime;
+    float contractTime = 10;
+
     public static int money; // score
     public Text tex; // score UI
-
-    // Update is called once per frame
+    private void Start()
+    {
+        keywords = keywordRef;
+    }
     void Update()
     {
+        Debug.Log(activeContracts.Count);
         if (activeContracts.Count < numContracts) addContract();
-        foreach (Contract i in activeContracts)
+        for (int i = 0; i < activeContracts.Count; i++)
         {
-            i.countDown();
+            activeContracts[i].countDown();
         }
         tex.text = "" + money;
     }
     public void addContract()
     {
         int numEntries = numItems > 2 ? Random.Range(1, 4) : Random.Range(1, numItems + 1);
-        activeContracts.Add(new Contract(numItems, numEntries, contractTime));
+        activeContracts.Add(new Contract(numItems, numEntries, contractTime, canvas, position, offset, activeContracts.Count + 1));
+        //activeContractsUI
     }
     public void addItem(string name)
     {
@@ -46,19 +56,28 @@ public class ContractManager : MonoBehaviour
         }
     }
 }
-public class Contract
+public class Contract : MonoBehaviour
 {
     List<string> itemName; // type of item needed
     List<int> itemReq; // how many items of this type are needed
     float timer; // how long this contract has
+    float maxTime; // for UI
+    GameObject UI; // contract UI element
     int difficulty; // combination of itemname and itemreq
-    public Contract(int numItems, int numEntries, float time)
+    public Contract(int numItems, int numEntries, float time, GameObject canvas, Vector2 position, int offset, int iterator)
     {
-        timer = time;
+        itemName = new List<string>();
+        itemReq = new List<int>();
+        timer = time * numItems;
+        UI = (GameObject)Instantiate(Resources.Load("Contract"));
+        UI.transform.parent = canvas.transform;
+        UI.transform.localPosition = new Vector2(position.x + (offset * iterator), position.y);
+        maxTime = timer;
         difficulty = numEntries * numItems;
         // makes numEntries with numItems total
         for (int i = 0; i < numEntries && numItems > 0; i++)
         {
+            Debug.Log(ContractManager.keywords.Length);
             itemName.Add(ContractManager.keywords[Random.Range(0, ContractManager.keywords.Length)]);
             int temp = Random.Range(1, numItems);
             numItems -= temp;
@@ -76,19 +95,34 @@ public class Contract
                 {
                     itemName.RemoveAt(i);
                     itemReq.RemoveAt(i);
+                    updateUI();
                     return true;
                 }
             }
         }
         return false;
     }
+    public void updateUI()
+    {
+        int a = 0;
+        foreach (Text i in UI.GetComponentsInChildren<Text>())
+        {
+            i.text = "" + itemReq[a];
+            a++;
+        }
+    }
     public void countDown()
     {
         timer -= Time.deltaTime;
+        UI.GetComponentInChildren<Image>().fillAmount = Mathf.Clamp(timer / maxTime, 0, 1f);
     }
     public int isEmpty() 
     {
-        if (itemName.Count == 0) return difficulty;
+        if (itemName.Count == 0)
+        {
+            Destroy(UI);
+            return difficulty; 
+        }
         else return -1;
     }
 }

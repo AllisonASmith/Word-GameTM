@@ -9,6 +9,9 @@ public class ItemStats : MonoBehaviour
     public bool isEmpty; // might change to number later, if the watering can has water
     public int type; // [water, feeding, pesticide, selling, tilling, planting, harvesting]
     public bool isStatic; // can the item be moved
+    
+    public SoundEffectPlayer sounds; // plays thud
+
     [SerializeField]
     float offset = 1;
     [SerializeField]
@@ -32,5 +35,9 @@ public class ItemStats : MonoBehaviour
         float launchPos = -1;
         if (direction > 0) launchPos = 1;
         rb.AddForce(new Vector2(launchPos, 1) * magnitude);
+    }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        sounds.play(3);
     }
 }
